@@ -1,9 +1,14 @@
+package com.example.aplicaciondesarrollo.ui
+
+import com.example.aplicaciondesarrollo.models.Usuario
+import com.example.aplicaciondesarrollo.models.usuarios
+
 data class Usuario(val nombre: String, val email: String, val password: String)
 
 val usuarios = mutableListOf<Usuario>()
 
 @Composable
-fun RegistroView(onNavigateToLogin: () -> Unit) {
+fun registroView(onNavigateToLogin: () -> Unit) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

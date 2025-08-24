@@ -1,3 +1,5 @@
+package com.example.aplicaciondesarrollo.ui
+
 @Composable
 fun LoginView(
     onLogin: (String, String) -> Unit,

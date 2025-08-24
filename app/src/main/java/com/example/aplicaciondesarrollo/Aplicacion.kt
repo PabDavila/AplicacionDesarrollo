@@ -7,7 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.aplicaciondesarrollo.ui.*
 
 @Composable
-fun Aplicacion() {
+fun MyApp() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "login") {
@@ -17,6 +17,7 @@ fun Aplicacion() {
                 onNavigateToRegister = { navController.navigate("registro") },
                 onNavigateToRecover = { navController.navigate("recuperar") }
             )
+
         }
         composable("registro") {
             RegistroView(

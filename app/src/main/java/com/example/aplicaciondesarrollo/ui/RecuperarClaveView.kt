@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RecuperarClaveView(onNavigateBack: () -> Unit) {
+fun recuperarClaveView(onNavigateBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
