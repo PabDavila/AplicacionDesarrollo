@@ -1,7 +1,5 @@
 package com.example.aplicaciondesarrollo.models
 
-import com.example.aplicaciondesarrollo.ui.Usuario
-
 data class Usuario(val nombre: String, val email: String, val password: String)
 
 // Lista compartida entre todas las views

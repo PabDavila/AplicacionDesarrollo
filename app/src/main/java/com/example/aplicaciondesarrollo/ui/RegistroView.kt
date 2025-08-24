@@ -1,7 +1,13 @@
 package com.example.aplicaciondesarrollo.ui
 
-import com.example.aplicaciondesarrollo.models.Usuario
 import com.example.aplicaciondesarrollo.models.usuarios
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 
 data class Usuario(val nombre: String, val email: String, val password: String)
 
