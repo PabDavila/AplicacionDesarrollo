@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun recuperarClaveView(onNavigateBack: () -> Unit) {
+fun RecuperarClaveView(onNavigateBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
