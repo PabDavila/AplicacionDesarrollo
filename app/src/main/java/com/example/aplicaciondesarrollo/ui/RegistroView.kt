@@ -5,12 +5,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.aplicaciondesarrollo.models.Usuario
 import com.example.aplicaciondesarrollo.models.usuarios
 
@@ -22,14 +22,10 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
     var confirmPassword by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
-    // 🔹 CheckBox (aceptar términos)
     var aceptaTerminos by remember { mutableStateOf(false) }
-
-    // 🔹 RadioButtons (género)
     val generos = listOf("Masculino", "Femenino", "Otro")
     var generoSeleccionado by remember { mutableStateOf(generos[0]) }
 
-    // 🔹 ComboBox (país)
     val paises = listOf("Chile", "Argentina", "Perú", "México")
     var paisSeleccionado by remember { mutableStateOf(paises[0]) }
     var expandirDropdown by remember { mutableStateOf(false) }
@@ -42,7 +38,6 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
     ) {
         Text("Registro de Usuario", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
-        // Inputs básicos
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -72,10 +67,9 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
 
         Spacer(Modifier.height(12.dp))
 
-        // 🔹 RadioButtons
         Text("Selecciona tu género:")
         generos.forEach { genero ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 RadioButton(
                     selected = (generoSeleccionado == genero),
                     onClick = { generoSeleccionado = genero }
@@ -86,7 +80,6 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
 
         Spacer(Modifier.height(12.dp))
 
-        // 🔹 ComboBox (Dropdown)
         Text("Selecciona tu país:")
         Box {
             OutlinedButton(onClick = { expandirDropdown = true }) {
@@ -110,8 +103,7 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
 
         Spacer(Modifier.height(12.dp))
 
-        // 🔹 CheckBox
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Checkbox(
                 checked = aceptaTerminos,
                 onCheckedChange = { aceptaTerminos = it }
@@ -121,11 +113,12 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
 
         Spacer(Modifier.height(16.dp))
 
-        // Botón Registrar
         Button(
             onClick = {
                 if (!aceptaTerminos) {
                     mensaje = "Debes aceptar los términos"
+                } else if (usuarios.size >= 5) {
+                    mensaje = "No se pueden registrar más de 5 usuarios"
                 } else if (password == confirmPassword && nombre.isNotBlank() && email.isNotBlank()) {
                     usuarios.add(Usuario(nombre, email, password))
                     mensaje = "Usuario registrado correctamente"
@@ -151,14 +144,9 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
 
         Spacer(Modifier.height(16.dp))
 
-        // 🔹 Tabla / Grilla de usuarios
         if (usuarios.isNotEmpty()) {
             Text("Usuarios registrados:", fontWeight = FontWeight.Bold)
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Encabezado
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 item {
                     Row(
                         Modifier.fillMaxWidth().padding(4.dp),
@@ -169,8 +157,6 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
                     }
                     Divider()
                 }
-
-                // Filas de usuarios
                 items(usuarios) { user ->
                     Row(
                         Modifier.fillMaxWidth().padding(4.dp),
@@ -184,4 +170,10 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
             }
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewRegistroView() {
+    RegistroView(onNavigateToLogin = {})
 }

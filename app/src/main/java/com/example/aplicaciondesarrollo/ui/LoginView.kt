@@ -4,19 +4,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.aplicaciondesarrollo.models.usuarios
 
 @Composable
 fun LoginView(
-    onLogin: (String, String) -> Unit,
+    onLogin: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToRecover: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -24,15 +25,12 @@ fun LoginView(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Iniciar Sesión", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-
-        Spacer(Modifier.height(16.dp))
+        Text("Iniciar Sesión", fontSize = 22.sp)
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo electrónico") },
-            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -40,26 +38,40 @@ fun LoginView(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(16.dp))
 
         Button(
-            onClick = { onLogin(email, password) },
+            onClick = {
+                val user = usuarios.find { it.email == email && it.password == password }
+                if (user != null) {
+                    mensaje = "Bienvenido ${user.nombre}"
+                    onLogin()
+                } else {
+                    mensaje = "Usuario o contraseña incorrectos"
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Ingresar")
         }
 
+        Spacer(Modifier.height(8.dp))
+        Text(mensaje)
+
+        TextButton(onClick = onNavigateToRegister) {
+            Text("¿No tienes cuenta? Registrarse")
+        }
         TextButton(onClick = onNavigateToRecover) {
             Text("¿Olvidaste tu contraseña?")
         }
-
-        TextButton(onClick = onNavigateToRegister) {
-            Text("¿No tienes cuenta? Regístrate aquí")
-        }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewLoginView() {
+    LoginView(onLogin = {}, onNavigateToRegister = {}, onNavigateToRecover = {})
 }

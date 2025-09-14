@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 }
 
 android {
@@ -55,9 +56,12 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
 
     // 🔹 UI Compose
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
     implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.navigation:navigation-compose:2.8.0")
+    debugImplementation("androidx.compose.ui:ui-tooling")
 
     // 🔹 Navigation para Compose
     implementation("androidx.navigation:navigation-compose:2.8.0")
@@ -71,4 +75,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+
 }
