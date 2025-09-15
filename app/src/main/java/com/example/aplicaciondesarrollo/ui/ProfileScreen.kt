@@ -1,15 +1,15 @@
 package com.example.aplicaciondesarrollo.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.input.TextFieldValue
-import com.example.aplicaciondesarrollo.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(onLogout: () -> Unit) {
     Scaffold(
@@ -29,7 +29,7 @@ fun ProfileScreen(onLogout: () -> Unit) {
         ) {
             // Avatar
             Icon(
-                imageVector = Icons.Default.AccountCircle,
+                imageVector = Icons.Filled.AccountCircle,
                 contentDescription = "Avatar",
                 modifier = Modifier.size(100.dp),
                 tint = MaterialTheme.colorScheme.primary
