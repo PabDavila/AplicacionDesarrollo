@@ -4,21 +4,30 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.aplicaciondesarrollo.models.usuarios
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class) // 🔹 Si insistes en usar TopAppBar normal
 @Composable
-fun ProfileScreen(
-    userName: String,
+fun ProfileView(
     userEmail: String,
     onLogout: () -> Unit
 ) {
+    val user = usuarios.find { it.email == userEmail }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Mi Perfil") })
+            SmallTopAppBar(
+                title = { Text("Mi Perfil") },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
         }
     ) { padding ->
         Column(
@@ -38,8 +47,12 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Usuario: $userName", style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Correo: $userEmail", style = MaterialTheme.typography.bodyMedium)
+            if (user != null) {
+                Text("Nombre: ${user.nombre}", style = MaterialTheme.typography.bodyLarge)
+                Text("Correo: ${user.email}", style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Text("Usuario no encontrado", style = MaterialTheme.typography.bodyLarge)
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -50,3 +63,11 @@ fun ProfileScreen(
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewProfileView() {
+    ProfileView(
+        userEmail = "demo@correo.com",
+        onLogout = {}
+    )
+}

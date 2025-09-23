@@ -14,6 +14,8 @@ import com.example.aplicaciondesarrollo.ui.LoginScreen
 import com.example.aplicaciondesarrollo.ui.RegisterScreen
 import com.example.aplicaciondesarrollo.ui.RecoverPasswordScreen
 import com.example.aplicaciondesarrollo.ui.ProfileScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aplicaciondesarrollo.ui.ProfileView
 
 
 class MainActivity : ComponentActivity() {
@@ -25,28 +27,50 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Preview(showBackground = true)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "login") {
+        // 🔹 Pantalla de Login
         composable("login") {
             LoginScreen(
-                onLogin = { _, _ -> navController.navigate("profile") }, // 🔹 Si login OK → perfil
+                onLogin = { _, _ -> navController.navigate("profile") }, // Si login OK → perfil
                 onGoToRegister = { navController.navigate("register") },
                 onGoToRecover = { navController.navigate("recover") }
             )
         }
+
+        // 🔹 Pantalla de Registro
         composable("register") {
-            RegisterScreen(onBack = { navController.popBackStack() })
+            RegisterScreen(
+                onRegister = { nombre, correo, pass1, pass2, pais, acepta ->
+                    if (nombre.isNotBlank() && correo.isNotBlank() && pass1 == pass2 && acepta) {
+                        navController.navigate("profile")
+                    }
+                },
+                onBack = { navController.popBackStack() } // 🔹 ahora sí pasamos el onBack
+            )
         }
+
+
+        // 🔹 Pantalla de Recuperación
         composable("recover") {
             RecoverPasswordScreen(onBack = { navController.popBackStack() })
         }
+
+        // 🔹 Pantalla de Perfil
         composable("profile") {
-            ProfileScreen(onLogout = {
-                navController.popBackStack("login", inclusive = false)
-            })
+            ProfileView(
+                userEmail = "demo@correo.com", // correo fijo de ejemplo
+                onLogout = {
+                    navController.popBackStack("login", inclusive = false)
+                }
+            )
         }
     }
 }
+
+
+

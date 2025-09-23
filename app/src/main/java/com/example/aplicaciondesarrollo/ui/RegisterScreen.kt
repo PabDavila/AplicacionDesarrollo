@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
-    onRegister: (String, String, String, String, String, Boolean) -> Unit
+    onRegister: (String, String, String, String, String, Boolean) -> Unit,
+    onBack: () -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
@@ -32,7 +33,7 @@ fun RegisterScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF2F2F2)), // 🔹 Fondo gris claro
+            .background(Color(0xFFF2F2F2)),
         contentAlignment = Alignment.Center
     ) {
         Card(
@@ -93,7 +94,7 @@ fun RegisterScreen(
                     singleLine = true
                 )
 
-                // País (Dropdown)
+                // País
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = !expanded }
@@ -128,9 +129,7 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Checkbox Términos
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = aceptaTerminos,
                         onCheckedChange = { aceptaTerminos = it }
@@ -156,11 +155,25 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF)) // 🔹 Azul fuerte
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF))
                 ) {
                     Text("Registrar", color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Botón Volver
+                OutlinedButton(
+                    onClick = onBack,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Volver")
                 }
             }
         }
     }
 }
+
