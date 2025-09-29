@@ -1,65 +1,53 @@
 package com.example.aplicaciondesarrollo.ui.theme
 
-import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 
-// 🎨 Definición de esquema claro
 private val LightColors = lightColorScheme(
-    primary = BluePrimary,
-    onPrimary = White,
-    secondary = AccentOrange,
-    background = BackgroundLight,
-    onBackground = TextPrimary,
-    surface = White,
-    onSurface = TextPrimary
+    primary = Color(0xFF007BFF),
+    onPrimary = Color.White,
+    secondary = Color(0xFF03DAC6),
+    background = Color(0xFFF2F2F2),
+    surface = Color.White,
+    onSurface = Color.Black
 )
 
-// 🎨 Definición de esquema oscuro
 private val DarkColors = darkColorScheme(
-    primary = BlueLight,
-    onPrimary = White,
-    secondary = AccentOrange,
-    background = BackgroundDark,
-    onBackground = White,
-    surface = BlueDark,
-    onSurface = White
-)
-
-// Definición de Shapes (bordes)
-val Shapes = Shapes(
-    small = RoundedCornerShape(4.dp),   // Forma pequeña
-    medium = RoundedCornerShape(8.dp),  // Forma mediana
-    large = RoundedCornerShape(16.dp)   // Forma grande
+    primary = Color(0xFF1E88E5),
+    onPrimary = Color.White,
+    secondary = Color(0xFF03DAC6),
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E),
+    onSurface = Color.White
 )
 
 @Composable
-fun AplicacionDesarrolloTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+fun AppTheme(
+    darkTheme: Boolean,
+    largeFont: Boolean,
     content: @Composable () -> Unit
 ) {
-    // Usamos colores predefinidos (sin dynamicColorScheme)
     val colors = if (darkTheme) DarkColors else LightColors
 
-    // 🔹 Forzar color de status bar a juego con el tema
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        val window = (view.context as Activity).window
-        window.statusBarColor = colors.primary.toArgb()
-        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-    }
+    val baseTypography = Typography()
 
-    // Usamos los colores predefinidos y Shapes con bordes redondeados
+    val typography = baseTypography.copy(
+        bodyLarge = baseTypography.bodyLarge.copy(
+            fontSize = if (largeFont) 20.sp else 16.sp
+        ),
+        bodyMedium = baseTypography.bodyMedium.copy(
+            fontSize = if (largeFont) 18.sp else 14.sp
+        ),
+        headlineSmall = baseTypography.headlineSmall.copy(
+            fontSize = if (largeFont) 28.sp else 22.sp
+        )
+    )
+
     MaterialTheme(
         colorScheme = colors,
-        typography = Typography,
-        shapes = Shapes, // Aquí pasamos el objeto Shapes
+        typography = typography,
         content = content
     )
 }

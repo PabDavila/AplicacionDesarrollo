@@ -51,6 +51,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
 
+    // icons (conjunto extendido que contiene FormatSize, DarkMode, etc.)
+    implementation("androidx.compose.material:material-icons-extended:1.5.1")
+
     // Compose BOM (para unificar versiones)
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
 

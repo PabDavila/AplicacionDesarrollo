@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun RecoverPasswordScreen(onBack: () -> Unit) {
@@ -62,4 +63,12 @@ fun RecoverPasswordScreen(onBack: () -> Unit) {
             }
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewRecoverPasswordScreen() {
+    RecoverPasswordScreen(
+        onBack = {}
+    )
 }
