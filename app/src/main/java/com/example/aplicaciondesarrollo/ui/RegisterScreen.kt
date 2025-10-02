@@ -1,5 +1,6 @@
 package com.example.aplicaciondesarrollo.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,15 +11,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.aplicaciondesarrollo.data.FirebaseRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
-    onRegister: (String, String, String, String, String, Boolean) -> Unit,
+    onRegisterSuccess: () -> Unit,
     onBack: () -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
@@ -30,6 +34,8 @@ fun RegisterScreen(
     var aceptaTerminos by remember { mutableStateOf(false) }
 
     val listaPaises = listOf("Chile", "Argentina", "Perú", "México", "España")
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -140,17 +146,24 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botón Registrar
+                // Botón Registrar con Firebase
                 Button(
                     onClick = {
-                        onRegister(
-                            nombre,
-                            correo,
-                            contrasena,
-                            repetirContrasena,
-                            pais,
-                            aceptaTerminos
-                        )
+                        if (contrasena == repetirContrasena && aceptaTerminos) {
+                            scope.launch {
+                                val result = FirebaseRepository.registerUser(
+                                    nombre, correo, contrasena, pais
+                                )
+                                result.onSuccess {
+                                    Toast.makeText(context, "Usuario registrado", Toast.LENGTH_SHORT).show()
+                                    onRegisterSuccess()
+                                }.onFailure {
+                                    Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        } else {
+                            Toast.makeText(context, "Verifica los campos", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,7 +195,7 @@ fun RegisterScreen(
 @Composable
 fun PreviewRegisterScreen() {
     RegisterScreen(
-        onRegister = { _, _, _, _, _, _ -> },
+        onRegisterSuccess = {},
         onBack = {}
     )
 }

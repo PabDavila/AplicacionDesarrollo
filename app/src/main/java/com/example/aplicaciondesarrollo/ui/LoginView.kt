@@ -7,17 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.aplicaciondesarrollo.models.usuarios
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginView(
-    onLogin: () -> Unit,
+    onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToRecover: () -> Unit
 ) {
+    val auth = FirebaseAuth.getInstance()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -38,28 +41,36 @@ fun LoginView(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(Modifier.height(16.dp))
 
         Button(
             onClick = {
-                val user = usuarios.find { it.email == email && it.password == password }
-                if (user != null) {
-                    mensaje = "Bienvenido ${user.nombre}"
-                    onLogin()
-                } else {
-                    mensaje = "Usuario o contraseña incorrectos"
-                }
+                loading = true
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        loading = false
+                        if (task.isSuccessful) {
+                            mensaje = "Bienvenido ${auth.currentUser?.email}"
+                            onLoginSuccess()
+                        } else {
+                            mensaje = "Error: ${task.exception?.localizedMessage}"
+                        }
+                    }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !loading
         ) {
-            Text("Ingresar")
+            Text(if (loading) "Ingresando..." else "Ingresar")
         }
 
         Spacer(Modifier.height(8.dp))
-        Text(mensaje)
+        Text(mensaje, color = MaterialTheme.colorScheme.error)
+
+        Spacer(Modifier.height(8.dp))
 
         TextButton(onClick = onNavigateToRegister) {
             Text("¿No tienes cuenta? Registrarse")
@@ -73,5 +84,9 @@ fun LoginView(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewLoginView() {
-    LoginView(onLogin = {}, onNavigateToRegister = {}, onNavigateToRecover = {})
+    LoginView(
+        onLoginSuccess = {},
+        onNavigateToRegister = {},
+        onNavigateToRecover = {}
+    )
 }

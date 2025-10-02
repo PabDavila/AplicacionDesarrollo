@@ -1,173 +1,146 @@
 package com.example.aplicaciondesarrollo.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.aplicaciondesarrollo.models.Usuario
-import com.example.aplicaciondesarrollo.models.usuarios
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun RegistroView(onNavigateToLogin: () -> Unit) {
+fun RegistroView(
+    onRegisterSuccess: () -> Unit,
+    onBack: () -> Unit
+) {
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var mensaje by remember { mutableStateOf("") }
-
+    var confirmarPassword by remember { mutableStateOf("") }
+    var pais by remember { mutableStateOf("") }
     var aceptaTerminos by remember { mutableStateOf(false) }
-    val generos = listOf("Masculino", "Femenino", "Otro")
-    var generoSeleccionado by remember { mutableStateOf(generos[0]) }
 
-    val paises = listOf("Chile", "Argentina", "Perú", "México")
-    var paisSeleccionado by remember { mutableStateOf(paises[0]) }
-    var expandirDropdown by remember { mutableStateOf(false) }
+    var mensaje by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Top
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Registro de Usuario", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("Registro de Usuario", style = MaterialTheme.typography.headlineSmall)
+
+        Spacer(Modifier.height(16.dp))
 
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre completo") },
+            label = { Text("Nombre Completo") },
             modifier = Modifier.fillMaxWidth()
         )
+
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
+
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
+
         OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirmar contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
+            value = confirmarPassword,
+            onValueChange = { confirmarPassword = it },
+            label = { Text("Confirmar Contraseña") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = pais,
+            onValueChange = { pais = it },
+            label = { Text("País") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(Modifier.height(12.dp))
-
-        Text("Selecciona tu género:")
-        generos.forEach { genero ->
-            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                RadioButton(
-                    selected = (generoSeleccionado == genero),
-                    onClick = { generoSeleccionado = genero }
-                )
-                Text(genero)
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        Text("Selecciona tu país:")
-        Box {
-            OutlinedButton(onClick = { expandirDropdown = true }) {
-                Text(paisSeleccionado)
-            }
-            DropdownMenu(
-                expanded = expandirDropdown,
-                onDismissRequest = { expandirDropdown = false }
-            ) {
-                paises.forEach { pais ->
-                    DropdownMenuItem(
-                        text = { Text(pais) },
-                        onClick = {
-                            paisSeleccionado = pais
-                            expandirDropdown = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = aceptaTerminos,
                 onCheckedChange = { aceptaTerminos = it }
             )
-            Text("Acepto los términos y condiciones")
+            Text("Acepto términos y condiciones")
         }
 
         Spacer(Modifier.height(16.dp))
 
         Button(
             onClick = {
+                if (nombre.isBlank() || email.isBlank() || password.isBlank() || pais.isBlank()) {
+                    mensaje = "Por favor completa todos los campos"
+                    return@Button
+                }
+                if (password != confirmarPassword) {
+                    mensaje = "Las contraseñas no coinciden"
+                    return@Button
+                }
                 if (!aceptaTerminos) {
                     mensaje = "Debes aceptar los términos"
-                } else if (usuarios.size >= 5) {
-                    mensaje = "No se pueden registrar más de 5 usuarios"
-                } else if (password == confirmPassword && nombre.isNotBlank() && email.isNotBlank()) {
-                    usuarios.add(Usuario(nombre, email, password))
-                    mensaje = "Usuario registrado correctamente"
-                    nombre = ""
-                    email = ""
-                    password = ""
-                    confirmPassword = ""
-                } else {
-                    mensaje = "Error: contraseñas no coinciden o campos vacíos"
+                    return@Button
                 }
+
+                loading = true
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        loading = false
+                        if (task.isSuccessful) {
+                            val userId = auth.currentUser?.uid
+                            val user = hashMapOf(
+                                "nombre" to nombre,
+                                "email" to email,
+                                "pais" to pais
+                            )
+                            userId?.let {
+                                firestore.collection("usuarios")
+                                    .document(email) // usamos email como ID
+                                    .set(user)
+                            }
+                            mensaje = "Usuario registrado correctamente"
+                            onRegisterSuccess()
+                        } else {
+                            mensaje = "Error: ${task.exception?.localizedMessage}"
+                        }
+                    }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !loading
         ) {
-            Text("Registrar")
+            Text(if (loading) "Registrando..." else "Registrar")
         }
 
         Spacer(Modifier.height(8.dp))
-        Text(mensaje)
+        Text(mensaje, color = MaterialTheme.colorScheme.error)
 
-        TextButton(onClick = onNavigateToLogin) {
-            Text("Volver al login")
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        if (usuarios.isNotEmpty()) {
-            Text("Usuarios registrados:", fontWeight = FontWeight.Bold)
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                item {
-                    Row(
-                        Modifier.fillMaxWidth().padding(4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Nombre", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
-                        Text("Email", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
-                    }
-                    Divider()
-                }
-                items(usuarios) { user ->
-                    Row(
-                        Modifier.fillMaxWidth().padding(4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(user.nombre, modifier = Modifier.weight(1f))
-                        Text(user.email, modifier = Modifier.weight(1f))
-                    }
-                    Divider()
-                }
-            }
+        OutlinedButton(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Volver")
         }
     }
 }
@@ -175,5 +148,5 @@ fun RegistroView(onNavigateToLogin: () -> Unit) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewRegistroView() {
-    RegistroView(onNavigateToLogin = {})
+    RegistroView(onRegisterSuccess = {}, onBack = {})
 }

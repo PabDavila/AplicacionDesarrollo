@@ -9,15 +9,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.aplicaciondesarrollo.models.usuarios
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
-@OptIn(ExperimentalMaterial3Api::class) // 🔹 Si insistes en usar TopAppBar normal
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileView(
-    userEmail: String,
     onLogout: () -> Unit
 ) {
-    val user = usuarios.find { it.email == userEmail }
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+    val currentUser = auth.currentUser
+
+    var nombre by remember { mutableStateOf<String?>(null) }
+    var correo by remember { mutableStateOf(currentUser?.email ?: "No disponible") }
+
+    // 🔹 Cargar datos del usuario desde Firestore
+    LaunchedEffect(currentUser?.email) {
+        currentUser?.email?.let { email ->
+            firestore.collection("usuarios")
+                .document(email) // usamos email como ID del doc
+                .get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        nombre = doc.getString("nombre")
+                    }
+                }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -47,16 +66,21 @@ fun ProfileView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (user != null) {
-                Text("Nombre: ${user.nombre}", style = MaterialTheme.typography.bodyLarge)
-                Text("Correo: ${user.email}", style = MaterialTheme.typography.bodyMedium)
-            } else {
-                Text("Usuario no encontrado", style = MaterialTheme.typography.bodyLarge)
-            }
+            Text(
+                text = "Nombre: ${nombre ?: "Cargando..."}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = "Correo: $correo",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(onClick = onLogout) {
+            Button(onClick = {
+                auth.signOut()
+                onLogout()
+            }) {
                 Text("Cerrar sesión")
             }
         }
@@ -66,8 +90,5 @@ fun ProfileView(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewProfileView() {
-    ProfileView(
-        userEmail = "demo@correo.com",
-        onLogout = {}
-    )
+    ProfileView(onLogout = {})
 }

@@ -51,6 +51,12 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
 
+    // Firebase (con BOM para unificar versiones)
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+
     // icons (conjunto extendido que contiene FormatSize, DarkMode, etc.)
     implementation("androidx.compose.material:material-icons-extended:1.5.1")
 
