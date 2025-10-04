@@ -31,18 +31,11 @@ fun AppTheme(
 ) {
     val colors = if (darkTheme) DarkColors else LightColors
 
-    val baseTypography = Typography()
-
-    val typography = baseTypography.copy(
-        bodyLarge = baseTypography.bodyLarge.copy(
-            fontSize = if (largeFont) 20.sp else 16.sp
-        ),
-        bodyMedium = baseTypography.bodyMedium.copy(
-            fontSize = if (largeFont) 18.sp else 14.sp
-        ),
-        headlineSmall = baseTypography.headlineSmall.copy(
-            fontSize = if (largeFont) 28.sp else 22.sp
-        )
+    val base = Typography()
+    val typography = base.copy(
+        bodyLarge = base.bodyLarge.copy(fontSize = if (largeFont) 20.sp else 16.sp),
+        bodyMedium = base.bodyMedium.copy(fontSize = if (largeFont) 18.sp else 14.sp),
+        headlineSmall = base.headlineSmall.copy(fontSize = if (largeFont) 28.sp else 22.sp)
     )
 
     MaterialTheme(
