@@ -9,32 +9,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.ui.platform.LocalContext
+import com.example.aplicaciondesarrollo.data.AppDatabase
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileView(
+    userEmail: String,
     onLogout: () -> Unit
 ) {
-    val auth = FirebaseAuth.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
-    val currentUser = auth.currentUser
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getDatabase(context) }
+    val usuarioDao = db.usuarioDao()
+    val scope = rememberCoroutineScope()
 
     var nombre by remember { mutableStateOf<String?>(null) }
-    var correo by remember { mutableStateOf(currentUser?.email ?: "No disponible") }
+    var correo by remember { mutableStateOf(userEmail) }
 
-    // 🔹 Cargar datos del usuario desde Firestore
-    LaunchedEffect(currentUser?.email) {
-        currentUser?.email?.let { email ->
-            firestore.collection("usuarios")
-                .document(email) // usamos email como ID del doc
-                .get()
-                .addOnSuccessListener { doc ->
-                    if (doc.exists()) {
-                        nombre = doc.getString("nombre")
-                    }
-                }
+    // 🔹 Cargar datos desde SQLite
+    LaunchedEffect(userEmail) {
+        scope.launch {
+            val usuario = usuarioDao.obtenerUsuarioPorCorreo(userEmail)
+            nombre = usuario?.nombre
         }
     }
 
@@ -77,10 +74,7 @@ fun ProfileView(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(onClick = {
-                auth.signOut()
-                onLogout()
-            }) {
+            Button(onClick = { onLogout() }) {
                 Text("Cerrar sesión")
             }
         }
@@ -90,5 +84,5 @@ fun ProfileView(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewProfileView() {
-    ProfileView(onLogout = {})
+    ProfileView(userEmail = "demo@correo.com", onLogout = {})
 }

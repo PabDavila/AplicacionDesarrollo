@@ -5,30 +5,30 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.firebase.auth.FirebaseAuth
+import com.example.aplicaciondesarrollo.data.AppDatabase
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
 fun LoginView(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (String) -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToRecover: () -> Unit
 ) {
-    val auth = FirebaseAuth.getInstance()
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var mensaje by remember { mutableStateOf("") }
-    var loading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Iniciar Sesión", fontSize = 22.sp)
+        Text("Iniciar Sesión", style = MaterialTheme.typography.headlineSmall)
 
         OutlinedTextField(
             value = email,
@@ -42,45 +42,35 @@ fun LoginView(
             onValueChange = { password = it },
             label = { Text("Contraseña") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            visualTransformation = PasswordVisualTransformation()
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                loading = true
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        loading = false
-                        if (task.isSuccessful) {
-                            mensaje = "Bienvenido ${auth.currentUser?.email}"
-                            onLoginSuccess()
-                        } else {
-                            mensaje = "Error: ${task.exception?.localizedMessage}"
-                        }
-                    }
+                // Aquí luego puedes poner tu lógica SQLite/Firebase
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    onLoginSuccess(email)
+                }
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !loading
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (loading) "Ingresando..." else "Ingresar")
+            Text("Iniciar sesión")
         }
-
-        Spacer(Modifier.height(8.dp))
-        Text(mensaje, color = MaterialTheme.colorScheme.error)
-
-        Spacer(Modifier.height(8.dp))
 
         TextButton(onClick = onNavigateToRegister) {
-            Text("¿No tienes cuenta? Registrarse")
+            Text("¿No tienes cuenta? Regístrate")
         }
+
         TextButton(onClick = onNavigateToRecover) {
             Text("¿Olvidaste tu contraseña?")
         }
     }
 }
 
+
+@Preview(showBackground = true, showSystemUi = true)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewLoginView() {

@@ -1,50 +1,46 @@
 package com.example.aplicaciondesarrollo.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.aplicaciondesarrollo.data.AppDatabase
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.aplicaciondesarrollo.data.Usuario
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun RegistroView(
     onRegisterSuccess: () -> Unit,
     onBack: () -> Unit
-) {
-    val auth = FirebaseAuth.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
+)  {
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getDatabase(context) }
+    val usuarioDao = db.usuarioDao()
+    val scope = rememberCoroutineScope()
 
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmarPassword by remember { mutableStateOf("") }
-    var pais by remember { mutableStateOf("") }
-    var aceptaTerminos by remember { mutableStateOf(false) }
-
+    var confirmPassword by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
-    var loading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center
     ) {
-        Text("Registro de Usuario", style = MaterialTheme.typography.headlineSmall)
-
-        Spacer(Modifier.height(16.dp))
+        Text("Registro de Usuario", fontSize = 22.sp)
 
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre Completo") },
+            label = { Text("Nombre completo") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -52,98 +48,50 @@ fun RegistroView(
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        OutlinedTextField(
-            value = confirmarPassword,
-            onValueChange = { confirmarPassword = it },
-            label = { Text("Confirmar Contraseña") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        OutlinedTextField(
-            value = pais,
-            onValueChange = { pais = it },
-            label = { Text("País") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                checked = aceptaTerminos,
-                onCheckedChange = { aceptaTerminos = it }
-            )
-            Text("Acepto términos y condiciones")
-        }
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Confirmar contraseña") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(Modifier.height(16.dp))
 
         Button(
             onClick = {
-                if (nombre.isBlank() || email.isBlank() || password.isBlank() || pais.isBlank()) {
-                    mensaje = "Por favor completa todos los campos"
-                    return@Button
-                }
-                if (password != confirmarPassword) {
+                if (password != confirmPassword) {
                     mensaje = "Las contraseñas no coinciden"
-                    return@Button
-                }
-                if (!aceptaTerminos) {
-                    mensaje = "Debes aceptar los términos"
-                    return@Button
-                }
-
-                loading = true
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        loading = false
-                        if (task.isSuccessful) {
-                            val userId = auth.currentUser?.uid
-                            val user = hashMapOf(
-                                "nombre" to nombre,
-                                "email" to email,
-                                "pais" to pais
-                            )
-                            userId?.let {
-                                firestore.collection("usuarios")
-                                    .document(email) // usamos email como ID
-                                    .set(user)
-                            }
-                            mensaje = "Usuario registrado correctamente"
-                            onRegisterSuccess()
-                        } else {
-                            mensaje = "Error: ${task.exception?.localizedMessage}"
-                        }
+                } else {
+                    scope.launch {
+                        usuarioDao.insertar(Usuario(nombre = nombre, correo = email, contrasena = password))
+                        mensaje = "Usuario registrado correctamente"
                     }
+                }
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !loading
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (loading) "Registrando..." else "Registrar")
+            Text("Registrar")
         }
 
         Spacer(Modifier.height(8.dp))
-        Text(mensaje, color = MaterialTheme.colorScheme.error)
+        Text(mensaje)
 
-        OutlinedButton(
-            onClick = onBack,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Volver")
+        TextButton(onClick = onBack) {
+            Text("Volver al login")
         }
     }
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
