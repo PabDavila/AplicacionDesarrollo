@@ -30,7 +30,7 @@ fun ProfileView(
     // 🔹 Cargar datos desde SQLite
     LaunchedEffect(userEmail) {
         scope.launch {
-            val usuario = usuarioDao.obtenerUsuarioPorCorreo(userEmail)
+            val usuario = usuarioDao.buscarPorCorreo(userEmail)
             nombre = usuario?.nombre
         }
     }
