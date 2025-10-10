@@ -79,6 +79,9 @@ dependencies {
     // Activity Compose
     implementation("androidx.activity:activity-compose:1.9.0")
 
+    //DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
@@ -90,5 +93,17 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.1")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.1")
+
+    // 🔹 Dependencias principales KTX
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+
+    // 🔹 Room (SQLite con Kotlin)
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    // 🔹 Corrutinas
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
 }
